@@ -25,12 +25,12 @@ class ClothingItem(models.Model):
         ('Green', 'Green'),
         ('Yellow', 'Yellow'),
     ]
-    
+   
     name = models.CharField(max_length=100)
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     popularity = models.PositiveIntegerField(default=0)
-    image = models.ImageField(upload_to='clothing_images/')
+    image = models.ImageField(upload_to='products/clothing_images/')
     category = models.ForeignKey('Category', related_name='clothing_items', on_delete=models.CASCADE, default=1)
     
     # New fields for size and color
