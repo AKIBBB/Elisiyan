@@ -14,7 +14,7 @@ class ClothingItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ClothingItem
-        fields = ['id', 'name', 'description', 'price', 'image', 'category', 'size', 'color', 'average_rating']
+        fields = ['id', 'name', 'description', 'price', 'image', 'category', 'size', 'color','reviews', 'average_rating']
 
 
 
@@ -24,22 +24,12 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = ['id', 'rating', 'comment', 'created_at', 'clothing_item']
-
-
-
-
-class ClothingItemSerializer(serializers.ModelSerializer):
-    reviews = ReviewSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = ClothingItem
-        fields = ['id', 'name', 'description', 'price', 'popularity', 'image', 'category', 'reviews']
         
         
         
 # pp
 class WishlistSerializer(serializers.ModelSerializer):
-    clothing_item = serializers.StringRelatedField()  # Display the clothing item's name (or any other field)
+    clothing_item = serializers.StringRelatedField()  
 
     class Meta:
         model = Wishlist
