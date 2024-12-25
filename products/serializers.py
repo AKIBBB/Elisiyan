@@ -10,11 +10,11 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class ClothingItemSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
+    average_rating = serializers.ReadOnlyField()
 
     class Meta:
         model = ClothingItem
-        fields = ['id', 'name', 'description', 'price', 'image', 'category', 'average_rating']
-
+        fields = ['id', 'name', 'description', 'price', 'image', 'category', 'size', 'color', 'average_rating']
 
 
 

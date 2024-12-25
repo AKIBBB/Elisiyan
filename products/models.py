@@ -37,8 +37,24 @@ class ClothingItem(models.Model):
     size = models.CharField(max_length=3, choices=SIZE_CHOICES, default='M')
     color = models.CharField(max_length=20, choices=COLOR_CHOICES, default='Black')
 
+    # Calculate average rating dynamically
+    def average_rating(self):
+        ratings = self.ratings.all()
+        if ratings:
+            return sum([rating.score for rating in ratings]) / len(ratings)
+        return 0.0
+
     def __str__(self):
         return self.name
+
+
+class Rating(models.Model):
+    clothing_item = models.ForeignKey(ClothingItem, related_name='ratings', on_delete=models.CASCADE)
+    score = models.PositiveIntegerField()
+    review = models.TextField()
+
+    def __str__(self):
+        return f'Rating for {self.clothing_item.name}'
 
 
 class Review(models.Model):
