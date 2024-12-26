@@ -36,22 +36,13 @@ class ClothingItem(models.Model):
     color = models.CharField(max_length=20, choices=COLOR_CHOICES, default='Black')
 
     def average_rating(self):
-        ratings = self.ratings.all()
+        ratings = self.reviews.all()
         if ratings:
-            return sum([rating.score for rating in ratings]) / len(ratings)
+            return sum([review.rating for review in ratings]) / len(ratings)
         return 0.0
 
     def __str__(self):
         return self.name
-
-
-class Rating(models.Model):
-    clothing_item = models.ForeignKey(ClothingItem, related_name='ratings', on_delete=models.CASCADE)
-    score = models.PositiveIntegerField()
-    review = models.TextField()
-
-    def __str__(self):
-        return f'Rating for {self.clothing_item.name}'
 
 
 class Review(models.Model):
@@ -69,15 +60,10 @@ class Review(models.Model):
 
     @property
     def average_rating(self):
-        ratings = self.clothing_item.reviews.all()
-        if ratings.exists():
-            return sum([r.rating for r in ratings]) / len(ratings)
+        reviews = self.clothing_item.reviews.all()
+        if reviews.exists():
+            return sum([review.rating for review in reviews]) / len(reviews)
         return 0
-    
-    
-
-
-# pp
 
 
 class Wishlist(models.Model):

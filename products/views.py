@@ -104,9 +104,10 @@ class ReviewViewSet(viewsets.ReadOnlyModelViewSet):
     def reviews(self, request, pk=None):
         clothing_item = self.get_object()
         reviews = clothing_item.reviews.all()
-        serializer = ReviewSerializer(reviews, many=True)
+        serializer = ReviewSerializer(reviews, many=True)  
 
         return Response(serializer.data)
+
     
     
     
