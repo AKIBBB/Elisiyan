@@ -14,7 +14,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 admin.site.register(ClothingItem)
 class ClothingItemAdmin(admin.ModelAdmin):
-    list_display = ['name', 'category', 'price', 'popularity']
+    list_display = ['id','name', 'category', 'price', 'popularity']
     search_fields = ['name', 'category__name']
     list_filter = ['category']
     

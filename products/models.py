@@ -32,12 +32,9 @@ class ClothingItem(models.Model):
     popularity = models.PositiveIntegerField(default=0)
     image = models.ImageField(upload_to='products/clothing_images/')
     category = models.ForeignKey('Category', related_name='clothing_items', on_delete=models.CASCADE, default=1)
-    
-    # New fields for size and color
     size = models.CharField(max_length=3, choices=SIZE_CHOICES, default='M')
     color = models.CharField(max_length=20, choices=COLOR_CHOICES, default='Black')
 
-    # Calculate average rating dynamically
     def average_rating(self):
         ratings = self.ratings.all()
         if ratings:
@@ -61,7 +58,7 @@ class Review(models.Model):
     clothing_item = models.ForeignKey(ClothingItem, related_name='reviews', on_delete=models.CASCADE)
     user = models.ForeignKey(User, related_name='reviews', on_delete=models.CASCADE)
     comment = models.TextField() 
-    rating = models.PositiveIntegerField(choices=[(i, i) for i in range(1, 6)])  # Ratings from 1 to 5
+    rating = models.PositiveIntegerField(choices=[(i, i) for i in range(1, 6)])  
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -81,7 +78,7 @@ class Review(models.Model):
 
 
 # pp
-  # Assuming ClothingItem model exists
+
 
 class Wishlist(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -89,7 +86,7 @@ class Wishlist(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ['user', 'clothing_item']  # Ensure that each user can save a clothing item only once.
+        unique_together = ['user', 'clothing_item']  
 
     def __str__(self):
         return f"Wishlist for {self.user.username} - {self.clothing_item.name}"
