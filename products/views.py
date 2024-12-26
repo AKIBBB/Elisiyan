@@ -13,6 +13,8 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django.db.models import Avg
 from .models import Wishlist
 from .serializers import WishlistSerializer
+from rest_framework.generics import get_object_or_404
+
 
 # Custom filter for clothing items
 class ClothingItemFilter(django_filters.FilterSet):
@@ -60,6 +62,18 @@ class ClothingItemViewSet(ReadOnlyModelViewSet):
         data = serializer.data
         for i, item in enumerate(data):
             item['average_rating'] = queryset[i].average_rating
+
+        return Response(data)
+    def retrieve(self, request, *args, **kwargs):
+        pk = kwargs.get('pk')
+        clothing_item = get_object_or_404(self.queryset, pk=pk)
+
+        avg_rating = clothing_item.reviews.aggregate(Avg('rating'))['rating__avg']
+        clothing_item.average_rating = avg_rating if avg_rating else 0
+
+        serializer = self.get_serializer(clothing_item)
+        data = serializer.data
+        data['average_rating'] = clothing_item.average_rating
 
         return Response(data)
 
