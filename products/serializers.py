@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Category, ClothingItem, Review, Wishlist
-
+from rest_framework import serializers
+from .models import Review
 
 class CategorySerializer(serializers.ModelSerializer):
 
@@ -10,7 +11,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ClothingItemSerializer(serializers.ModelSerializer):
-    category = CategorySerializer(read_only=True)  # Nesting category serializer
+    category = CategorySerializer(read_only=True)  
     average_rating = serializers.ReadOnlyField()
 
     class Meta:
@@ -24,18 +25,16 @@ class ClothingItemSerializer(serializers.ModelSerializer):
             'category', 
             'size', 
             'color', 
-            'average_rating'
+            'average_rating',
+            'popularity'
         ]
 
 
-from rest_framework import serializers
-from .models import Review
 
-from rest_framework import serializers
-from .models import Review
+
+
 
 class ReviewSerializer(serializers.ModelSerializer):
-    # Include reviewer's username in the response
     user_name = serializers.CharField(source='user.username', read_only=True)
 
     class Meta:
@@ -45,8 +44,8 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class WishlistSerializer(serializers.ModelSerializer):
-    clothing_item = ClothingItemSerializer(read_only=True)  # Show clothing item details
-    user = serializers.StringRelatedField(read_only=True)  # Display user's string representation
+    clothing_item = ClothingItemSerializer(read_only=True)  
+    user = serializers.StringRelatedField(read_only=True)  
 
     class Meta:
         model = Wishlist

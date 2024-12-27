@@ -6,6 +6,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django.db.models import Avg
 import django_filters
+from django_filters import rest_framework as filters 
 from rest_framework.permissions import IsAuthenticated
 from .models import ClothingItem, Review, Category, Wishlist
 from .serializers import (
@@ -15,16 +16,17 @@ from .serializers import (
     WishlistSerializer,
 )
 
-# Custom filter for clothing items
+
 class ClothingItemFilter(django_filters.FilterSet):
     name = django_filters.CharFilter(field_name="name", lookup_expr="icontains")
     size = django_filters.ChoiceFilter(choices=ClothingItem.SIZE_CHOICES)
     color = django_filters.ChoiceFilter(choices=ClothingItem.COLOR_CHOICES)
     category = django_filters.ModelChoiceFilter(queryset=Category.objects.all())
-
+    price_min = filters.NumberFilter(field_name="price", lookup_expr='gte', label="Minimum Price")
+    price_max = filters.NumberFilter(field_name="price", lookup_expr='lte', label="Maximum Price")
     class Meta:
         model = ClothingItem
-        fields = ["name", "size", "color", "category"]
+        fields = ["name", "size", "color", "category","popularity",'price_min', 'price_max']
 
 
 # Clothing Item ViewSet
@@ -36,8 +38,6 @@ class ClothingItemViewSet(ReadOnlyModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
         params = self.request.query_params
-
-        # Filtering
         name = params.get("name")
         if name:
             queryset = queryset.filter(name__icontains=name)
@@ -52,9 +52,9 @@ class ClothingItemViewSet(ReadOnlyModelViewSet):
 
         category = params.get("category")
         if category:
-            queryset = queryset.filter(category__name__iexact=category)  # Filter by category name
+            queryset = queryset.filter(category__name__iexact=category)  
 
-        # Sorting
+
         sort_by = params.get("sort_by", "price")
         if sort_by == "price":
             queryset = queryset.order_by("price")
@@ -68,7 +68,7 @@ class ClothingItemViewSet(ReadOnlyModelViewSet):
         if not queryset.exists():
             return Response({"message": "No products available"}, status=status.HTTP_404_NOT_FOUND)
 
-        # Annotate with average rating
+        #average rating
         for clothing_item in queryset:
             avg_rating = clothing_item.reviews.aggregate(Avg("rating"))["rating__avg"]
             clothing_item.average_rating = avg_rating if avg_rating else 0
@@ -110,7 +110,6 @@ class ReviewCreateView(generics.CreateAPIView):
     def perform_create(self, serializer):
         clothing_item = serializer.validated_data["clothing_item"]
         user = self.request.user
-        # Check if the user has already reviewed this item
         if Review.objects.filter(clothing_item=clothing_item, user=user).exists():
             raise serializers.ValidationError("You have already reviewed this item.")
         serializer.save(user=user)
@@ -120,7 +119,6 @@ class ReviewViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
 
-    # Custom action to retrieve reviews for a specific product (clothing item)
     @action(detail=True, methods=["get"])
     def reviews(self, request, pk=None):
         clothing_item = get_object_or_404(ClothingItem, pk=pk)
@@ -133,17 +131,16 @@ class ReviewViewSet(viewsets.ReadOnlyModelViewSet):
 class WishlistViewSet(viewsets.ModelViewSet):
     queryset = Wishlist.objects.all()
     serializer_class = WishlistSerializer
-    permission_classes = [IsAuthenticated]  # Ensure only authenticated users can access
+    permission_classes = [IsAuthenticated]  
 
     def get_queryset(self):
-        # Ensure the user is authenticated before filtering the wishlist
         if not self.request.user.is_authenticated:
-            return Wishlist.objects.none()  # Return an empty queryset for unauthenticated users
+            return Wishlist.objects.none() 
         return self.queryset.filter(user=self.request.user)
 
     @action(detail=False, methods=["post"])
     def add_to_wishlist(self, request):
-        # Ensure the user is authenticated
+
         if not request.user.is_authenticated:
             return Response({"detail": "Authentication credentials were not provided."}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -161,7 +158,6 @@ class WishlistViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["post"])
     def remove_from_wishlist(self, request):
-        # Ensure the user is authenticated
         if not request.user.is_authenticated:
             return Response({"detail": "Authentication credentials were not provided."}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -179,7 +175,6 @@ class WishlistViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["get"])
     def view_wishlist(self, request):
-        # Ensure the user is authenticated
         if not request.user.is_authenticated:
             return Response({"detail": "Authentication credentials were not provided."}, status=status.HTTP_401_UNAUTHORIZED)
 
