@@ -1,14 +1,15 @@
 from django.urls import path,include
 from rest_framework.routers import DefaultRouter
-from .views import ClothingItemViewSet, CategoryViewSet,ReviewViewSet,WishlistViewSet
+from .views import ClothingItemViewSet, CategoryViewSet, ReviewCreateView, WishlistViewSet,ReviewViewSet
+
 router = DefaultRouter()
 router.register(r'clothing', ClothingItemViewSet, basename='clothing')
 router.register(r'categories', CategoryViewSet, basename='category')
-router.register(r'reviews', ReviewViewSet, basename='review')
 router.register(r'wishlist', WishlistViewSet, basename='wishlist')
-router.register(r'product/clothing', ClothingItemViewSet, basename='clothing-item')
+router.register(r'reviews', ReviewViewSet)
 
-urlpatterns = router.urls
+
 urlpatterns = [
-    path('', include(router.urls)),  
+    path('', include(router.urls)),
+    path('reviews/', ReviewCreateView.as_view(), name='review-create'),
 ]

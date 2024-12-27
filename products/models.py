@@ -3,10 +3,10 @@ from django.contrib.auth.models import User
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='subcategories')
 
     def __str__(self):
         return self.name
+
 
 class ClothingItem(models.Model):
     SIZE_CHOICES = [
@@ -57,13 +57,6 @@ class Review(models.Model):
 
     class Meta:
         unique_together = ('clothing_item', 'user')
-
-    @property
-    def average_rating(self):
-        reviews = self.clothing_item.reviews.all()
-        if reviews.exists():
-            return sum([review.rating for review in reviews]) / len(reviews)
-        return 0
 
 
 class Wishlist(models.Model):
