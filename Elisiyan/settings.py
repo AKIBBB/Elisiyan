@@ -16,8 +16,9 @@ SECRET_KEY = 'django-insecure-xenue3m2zi+&izss*f%$g07bd#e%c2i=z&yslq$7lofn^2o(l$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
-CSRF_TRUSTED_ORIGINS =['https://elisiyan.onrender.com','https://*.127.0.0.1']
+ALLOWED_HOSTS = ['elisiyan.onrender.com']
+CSRF_TRUSTED_ORIGINS = ['https://elisiyan.onrender.com']
+
 
 
 
