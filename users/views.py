@@ -68,7 +68,8 @@ def activate(request, uid64, token):
         user.save()
         return redirect('login')  
     else:
-        return redirect('register')
+        return redirect('register')  
+
     
     
     
