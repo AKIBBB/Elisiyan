@@ -15,6 +15,7 @@ from django.contrib.auth import authenticate,login,logout
 from rest_framework.permissions import IsAuthenticated
 from django.utils.encoding import force_str
 from rest_framework.authtoken.models import Token
+from django.contrib.sites.shortcuts import get_current_site
 
 
 class UserRegistrationApiView(APIView):
@@ -27,8 +28,6 @@ class UserRegistrationApiView(APIView):
             token = default_token_generator.make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             current_site = get_current_site(request).domain
-
-            # Build the full confirmation link
             confirm_link = f"http://{current_site}/users/active/{uid}/{token}"
             
             email_subject = "Confirm Your Email"
