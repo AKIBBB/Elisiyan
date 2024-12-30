@@ -37,25 +37,6 @@ class UserRegistrationApiView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     
-    
-    def post(self,request):
-        serializer =self.serializer_class(data=request.data)
-        
-        if serializer.is_valid():
-            user =serializer.save()
-            token=default_token_generator.make_token(user)
-            uid=urlsafe_base64_encode(force_bytes(user.pk))
-            confirm_link=f"http://127.0.0.1:8000/users/active/{uid}/{token}"
-            print(confirm_link) 
-            emai_subject="Confirm Your Email"
-            email_body=render_to_string('auth_email.html',{'confirm_link' : confirm_link})
-            email=EmailMultiAlternatives(emai_subject,'',to =[user.email])
-            email.attach_alternative(email_body,"text/html")
-            email.send()
-            return Response("Check your mail for confirmation")
-        return Response(serializer.errors)
-    
-    
 def activate(request, uid64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uid64))
