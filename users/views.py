@@ -26,7 +26,7 @@ class UserRegistrationApiView(APIView):
             user = serializer.save()
             token = default_token_generator.make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
-            confirm_link = f"http://127.0.0.1:8000/users/active/{uid}/{token}"
+            confirm_link = f"https://elisiyan.onrender.com/users/active/{uid}/{token}"
             email_subject = "Confirm Your Email"
             email_body = render_to_string('auth_email.html', {'confirm_link': confirm_link})
             email = EmailMultiAlternatives(email_subject, '', to=[user.email])
