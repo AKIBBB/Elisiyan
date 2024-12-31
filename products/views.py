@@ -108,27 +108,51 @@ class ReviewCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
     
     def perform_create(self, serializer):
-        # Ensure that the user is authenticated and adding a valid review
         user = self.request.user
         clothing_item = serializer.validated_data["clothing_item"]
-        
-        # Check if the user has already reviewed this item
         if Review.objects.filter(clothing_item=clothing_item, user=user).exists():
             raise serializers.ValidationError("You have already reviewed this item.")
         
         serializer.save(user=user)
 
 # Review ViewSet
-class ReviewViewSet(viewsets.ReadOnlyModelViewSet):
+
+class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]  
 
     @action(detail=True, methods=["get"])
     def reviews(self, request, pk=None):
+        """
+        Retrieve all reviews for a specific clothing item.
+        """
         clothing_item = get_object_or_404(ClothingItem, pk=pk)
         reviews = clothing_item.reviews.all()
         serializer = ReviewSerializer(reviews, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def create(self, request, *args, **kwargs):
+        """
+        Create a review. Only logged-in users are allowed to submit reviews.
+        """
+        if not request.user.is_authenticated:
+            return Response(
+                {"detail": "Authentication required to create a review."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        clothing_item = serializer.validated_data["clothing_item"]
+        if Review.objects.filter(clothing_item=clothing_item, user=request.user).exists():
+            return Response(
+                {"detail": "You have already reviewed this item."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        
+        serializer.save(user=request.user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 # Wishlist ViewSet
 

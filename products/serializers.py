@@ -30,16 +30,14 @@ class ClothingItemSerializer(serializers.ModelSerializer):
         ]
 
 
-
-
-
-
 class ReviewSerializer(serializers.ModelSerializer):
-    user_name = serializers.CharField(source='user.username', read_only=True)
+    reviewer_name = serializers.CharField(source="user.username", read_only=True)
 
     class Meta:
         model = Review
-        fields = ['id', 'clothing_item', 'user', 'user_name', 'comment', 'rating', 'created_at']
+        fields = ['id', 'clothing_item', 'rating', 'comment', 'reviewer_name', 'created_at']
+        read_only_fields = ['reviewer_name', 'created_at']
+
 
 
 
