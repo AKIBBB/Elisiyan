@@ -106,12 +106,16 @@ class ReviewCreateView(generics.CreateAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
-
+    
     def perform_create(self, serializer):
-        clothing_item = serializer.validated_data["clothing_item"]
+        # Ensure that the user is authenticated and adding a valid review
         user = self.request.user
+        clothing_item = serializer.validated_data["clothing_item"]
+        
+        # Check if the user has already reviewed this item
         if Review.objects.filter(clothing_item=clothing_item, user=user).exists():
             raise serializers.ValidationError("You have already reviewed this item.")
+        
         serializer.save(user=user)
 
 # Review ViewSet
