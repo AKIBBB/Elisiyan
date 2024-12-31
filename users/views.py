@@ -77,6 +77,9 @@ class UserLoginApiView(APIView):
     
 class UserLogoutView(APIView):
     def get(self, request, format=None):
-        request.user.auth_token.delete()
-        return Response(status=status.HTTP_200_OK)
-    
+        try:
+            request.user.auth_token.delete()
+            return Response(status=status.HTTP_200_OK)
+        except AttributeError:
+            return Response({"detail": "No active session found."}, status=status.HTTP_400_BAD_REQUEST)
+
