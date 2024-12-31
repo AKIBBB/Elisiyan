@@ -76,12 +76,15 @@ class UserLoginApiView(APIView):
     
     
 class UserLogoutView(APIView):
-    
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
         try:
-            request.user.auth_token.delete()
-            return Response({"message": "Successfully logged out."}, status=200)
+            token = request.user.auth_token
+            if token:
+                token.delete()
+                return Response({"message": "Successfully logged out."}, status=status.HTTP_200_OK)
+            else:
+                return Response({"error": "No token found for this user."}, status=status.HTTP_400_BAD_REQUEST)
         except AttributeError:
-            return Response({"error": "User is not authenticated."}, status=400)
+            return Response({"error": "User is not authenticated."}, status=status.HTTP_400_BAD_REQUEST)
