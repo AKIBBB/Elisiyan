@@ -76,8 +76,11 @@ class UserLoginApiView(APIView):
     
     
 class UserLogoutView(APIView):
-    def get(self,request):
-        request.user.auth_token.delete()
-        logout(request)
-        return redirect ('login')
+    def post(self, request, *args, **kwargs):
+        try:
+            token = Token.objects.get(user=request.user)
+            token.delete()
+            return Response({"detail": "Logged out successfully."}, status=status.HTTP_200_OK)
+        except Token.DoesNotExist:
+            return Response({"detail": "Token not found for user."}, status=status.HTTP_400_BAD_REQUEST)
     
