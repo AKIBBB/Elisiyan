@@ -13,6 +13,7 @@ from django.template.loader import render_to_string
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate,login,logout
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
 from django.utils.encoding import force_str
 from rest_framework.authtoken.models import Token
 from rest_framework.exceptions import AuthenticationFailed
@@ -80,6 +81,7 @@ class UserLoginApiView(APIView):
 
 class UserLogoutView(APIView):
     permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
 
     def post(self, request):
         if not request.auth:
