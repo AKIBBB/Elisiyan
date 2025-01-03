@@ -15,6 +15,7 @@ from django.contrib.auth import authenticate,login,logout
 from rest_framework.permissions import IsAuthenticated
 from django.utils.encoding import force_str
 from rest_framework.authtoken.models import Token
+from rest_framework.exceptions import AuthenticationFailed
 
 
 class UserRegistrationApiView(APIView):
@@ -81,6 +82,8 @@ class UserLogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        request.auth.delete()  
+        if not request.auth:
+            raise AuthenticationFailed("Authentication token not provided or invalid.")
+        request.auth.delete()
         return Response({"message": "Logged out successfully"}, status=200)
     
