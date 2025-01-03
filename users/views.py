@@ -78,11 +78,9 @@ class UserLoginApiView(APIView):
 
 
 class UserLogoutView(APIView):
-    permission_classes = [IsAuthenticated]  
+    permission_classes = [IsAuthenticated]
 
-    def post(self, request, *args, **kwargs):
-        try:
-            Token.objects.filter(user=request.user).delete()
-            return Response({"message": "Logout successful"}, status=status.HTTP_200_OK)
-        except Token.DoesNotExist:
-            return Response({"message": "Token not found for user"}, status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request):
+        request.auth.delete()  
+        return Response({"message": "Logged out successfully"}, status=200)
+    
