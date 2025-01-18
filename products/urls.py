@@ -6,6 +6,8 @@ from .views import (
     ReviewCreateView,
     WishlistViewSet,
     ReviewViewSet,
+    AdminManageProducts,
+    AdminDeleteProduct,
 )
 
 router = DefaultRouter()
@@ -17,4 +19,6 @@ router.register(r'reviews', ReviewViewSet, basename='review')
 urlpatterns = [
     path('', include(router.urls)),  
     path('reviews/create/', ReviewCreateView.as_view(), name='review-create'), 
+    path('admin/manage-products/', AdminManageProducts.as_view(), name='admin_manage_products'),
+    path('admin/delete-product/<int:product_id>/', AdminDeleteProduct.as_view(), name='admin_delete_product'),
 ]

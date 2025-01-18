@@ -17,6 +17,7 @@ from rest_framework.authentication import TokenAuthentication
 from django.utils.encoding import force_str
 from rest_framework.authtoken.models import Token
 from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.permissions import IsAdminUser
 
 
 class UserRegistrationApiView(APIView):
@@ -88,4 +89,33 @@ class UserLogoutView(APIView):
             raise AuthenticationFailed("Authentication token not provided or invalid.")
         request.auth.delete()
         return Response({"message": "Logged out successfully"}, status=200)
+    
+    
+    
+class AdminManageUsers(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        users = User.objects.all()
+        serializer = serializers.AdminSerializer(users, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+
+        serializer = serializers.AdminSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
+
+class AdminDeleteUser(APIView):
+    permission_classes = [IsAdminUser]
+
+    def delete(self, request, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+            user.delete()
+            return Response({"message": "User deleted successfully."}, status=200)
+        except User.DoesNotExist:
+            return Response({"error": "User not found."}, status=404)
     

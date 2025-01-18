@@ -6,6 +6,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django.db.models import Avg
 import django_filters
+from rest_framework.views import APIView
 from django_filters import rest_framework as filters 
 from rest_framework.permissions import IsAuthenticated
 from .models import ClothingItem, Review, Category, Wishlist
@@ -15,7 +16,7 @@ from .serializers import (
     ReviewSerializer,
     WishlistSerializer,
 )
-
+from rest_framework.permissions import IsAdminUser
 
 class ClothingItemFilter(django_filters.FilterSet):
     name = django_filters.CharFilter(field_name="name", lookup_expr="icontains")
@@ -209,3 +210,33 @@ class WishlistViewSet(viewsets.ModelViewSet):
         wishlist_items = self.get_queryset()
         serializer = self.get_serializer(wishlist_items, many=True)
         return Response(serializer.data)
+
+
+
+class AdminManageProducts(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        products =ClothingItem.objects.all()
+        serializer = serializers.ProductSerializer(products, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        """Add a new product."""
+        serializer = serializers.ProductSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
+
+class AdminDeleteProduct(APIView):
+    permission_classes = [IsAdminUser]
+
+    def delete(self, request, product_id):
+        """Delete a product by ID."""
+        try:
+            product = ClothingItem.objects.get(id=product_id)
+            product.delete()
+            return Response({"message": "Product deleted successfully."}, status=200)
+        except ClothingItem.DoesNotExist:
+            return Response({"error": "Product not found."}, status=404)
