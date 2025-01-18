@@ -68,9 +68,9 @@ class UserLoginApiView(APIView):
             
             if user:
                 token, _=Token.objects.get_or_create(user=user)
-                print(token)
-                print(_)
                 login(request, user)
+                if user.is_staff:  
+                    return redirect('admin_interface')
                 return Response({'token' :token.key, 'user_id' :user.id})
             else:
                 return Response({'error' : "Invalid Credential"})
