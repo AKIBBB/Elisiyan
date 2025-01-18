@@ -12,7 +12,7 @@ from django_filters import rest_framework as filters
 from rest_framework.permissions import IsAuthenticated
 from .models import ClothingItem, Review, Category, Wishlist
 from .serializers import ClothingItemSerializer
-from products.serializers import ClothingItemSerializer
+
 
 from .serializers import (
     ClothingItemSerializer,

@@ -90,7 +90,15 @@ class UserLogoutView(APIView):
         request.auth.delete()
         return Response({"message": "Logged out successfully"}, status=200)
     
-    
+
+
+class AdminInterfaceView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if request.user.role in ['admin', 'staff']:
+            return Response({"message": "Welcome to the admin interface"})
+        return Response({"error": "Forbidden"}, status=403) 
     
 class AdminManageUsers(APIView):
     permission_classes = [IsAdminUser]
