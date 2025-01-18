@@ -5,11 +5,15 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django.db.models import Avg
+from django.http import Http404
 import django_filters
 from rest_framework.views import APIView
 from django_filters import rest_framework as filters 
 from rest_framework.permissions import IsAuthenticated
 from .models import ClothingItem, Review, Category, Wishlist
+from .serializers import ClothingItemSerializer
+from products.serializers import ClothingItemSerializer
+
 from .serializers import (
     ClothingItemSerializer,
     CategorySerializer,
@@ -218,12 +222,12 @@ class AdminManageProducts(APIView):
 
     def get(self, request):
         products =ClothingItem.objects.all()
-        serializer = serializers.ProductSerializer(products, many=True)
+        serializer =ClothingItemSerializer(products, many=True)
         return Response(serializer.data)
 
     def post(self, request):
-        """Add a new product."""
-        serializer = serializers.ProductSerializer(data=request.data)
+
+        serializer =ClothingItemSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=201)
@@ -232,11 +236,13 @@ class AdminManageProducts(APIView):
 class AdminDeleteProduct(APIView):
     permission_classes = [IsAdminUser]
 
-    def delete(self, request, product_id):
-        """Delete a product by ID."""
+    def get_object(self, product_id):
         try:
-            product = ClothingItem.objects.get(id=product_id)
-            product.delete()
-            return Response({"message": "Product deleted successfully."}, status=200)
+            return ClothingItem.objects.get(id=product_id)
         except ClothingItem.DoesNotExist:
-            return Response({"error": "Product not found."}, status=404)
+            raise Http404("Product not found")
+
+    def delete(self, request, product_id):
+        product = self.get_object(product_id)
+        product.delete()
+        return Response({"message": "Product deleted successfully."}, status=200)

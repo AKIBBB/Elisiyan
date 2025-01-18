@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Category, ClothingItem, Review, Wishlist
 from rest_framework import serializers
 from .models import Review
+from .models import ClothingItem
 
 class CategorySerializer(serializers.ModelSerializer):
 
@@ -50,7 +51,10 @@ class WishlistSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'clothing_item', 'created_at']
 
 
-class ProductSerializer(serializers.ModelSerializer):
+class ClothingItemSerializer(serializers.ModelSerializer):
+    category = CategorySerializer(read_only=True)
+    average_rating = serializers.FloatField(read_only=True)
+
     class Meta:
         model = ClothingItem
         fields = '__all__'
