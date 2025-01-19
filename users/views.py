@@ -95,8 +95,12 @@ class UserLogoutView(APIView):
 class AdminInterfaceView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request,*args, **kwargs):
-        return Response({"message": "Welcome to the admin interface."})
+    def get(self, request, *args, **kwargs):
+        if request.user.is_staff: 
+            return Response({"message": "Welcome to the admin interface."})
+        else:
+            return Response({"error": "Forbidden"}, status=403)
+
     
 class AdminManageUsers(APIView):
     permission_classes = [IsAdminUser]
