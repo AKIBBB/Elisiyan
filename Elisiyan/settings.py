@@ -17,7 +17,7 @@ SECRET_KEY = 'django-insecure-xenue3m2zi+&izss*f%$g07bd#e%c2i=z&yslq$7lofn^2o(l$
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
-CSRF_TRUSTED_ORIGINS = ['https://elisiyan.onrender.com','https://*.127.0.0.15500']
+CSRF_TRUSTED_ORIGINS = ['https://elisiyan.onrender.com','https://*.127.0.0:5500']
 
 
 
