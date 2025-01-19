@@ -76,8 +76,8 @@ class UserLoginApiView(APIView):
                 
                 return Response({'token': token.key, 'user_id': user.id})
             else:
-                return Response({'error': "Invalid Credential"}, status=400)
-        return Response(serializer.errors, status=400)
+                return Response({'error': "Invalid Credential"}, status=200)
+        return Response(serializer.errors, status=200)
     
     
     
@@ -103,7 +103,7 @@ class AdminInterfaceView(APIView):
         if request.user.is_staff:
             return Response({"message": "Welcome to the admin interface."})
         else:
-            return Response({"error": "Forbidden"}, status=403)
+            return Response({"error": "Forbidden"}, status=200)
     
 class AdminManageUsers(APIView):
     permission_classes = [IsAdminUser]
