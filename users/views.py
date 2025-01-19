@@ -17,6 +17,7 @@ from rest_framework.authentication import TokenAuthentication
 from django.utils.encoding import force_str
 from rest_framework.authtoken.models import Token
 from rest_framework.exceptions import AuthenticationFailed
+from django.urls import reverse
 from rest_framework.permissions import IsAdminUser
 
 
@@ -58,23 +59,25 @@ def activate(request, uid64, token):
     
     
 class UserLoginApiView(APIView):
-    def post(self,request):
-        serializer= serializers.UserLoginSerializer(data=self.request.data)
+    def post(self, request):
+        serializer = serializers.UserLoginSerializer(data=self.request.data)
         if serializer.is_valid():
-            username=serializer.validated_data['username']
-            password=serializer.validated_data['password']
+            username = serializer.validated_data['username']
+            password = serializer.validated_data['password']
             
-            user=authenticate(username=username,password=password)
+            user = authenticate(username=username, password=password)
             
             if user:
-                token, _=Token.objects.get_or_create(user=user)
+                token, _ = Token.objects.get_or_create(user=user)
                 login(request, user)
-                if user.is_staff:  
-                    return redirect('admin_interface')
-                return Response({'token' :token.key, 'user_id' :user.id})
+                if user.is_staff:
+                    
+                    return redirect(reverse('admin_interface'))  
+                
+                return Response({'token': token.key, 'user_id': user.id})
             else:
-                return Response({'error' : "Invalid Credential"})
-        return Response(serializer.errors)
+                return Response({'error': "Invalid Credential"}, status=400)
+        return Response(serializer.errors, status=400)
     
     
     
@@ -92,15 +95,15 @@ class UserLogoutView(APIView):
     
 
 
+
 class AdminInterfaceView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        if request.user.is_staff: 
+        if request.user.is_staff:
             return Response({"message": "Welcome to the admin interface."})
         else:
             return Response({"error": "Forbidden"}, status=403)
-
     
 class AdminManageUsers(APIView):
     permission_classes = [IsAdminUser]
