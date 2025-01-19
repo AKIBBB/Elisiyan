@@ -96,9 +96,7 @@ class AdminInterfaceView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        if request.user.role in ['admin', 'staff']:
-            return Response({"message": "Welcome to the admin interface"})
-        return Response({"error": "Forbidden"}, status=403) 
+        return Response({"message": "Welcome to the admin interface."})
     
 class AdminManageUsers(APIView):
     permission_classes = [IsAdminUser]
