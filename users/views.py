@@ -95,7 +95,7 @@ class UserLogoutView(APIView):
 class AdminInterfaceView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
+    def get(self, request,*args, **kwargs):
         return Response({"message": "Welcome to the admin interface."})
     
 class AdminManageUsers(APIView):
