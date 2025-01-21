@@ -18,7 +18,9 @@ from django.utils.encoding import force_str
 from rest_framework.authtoken.models import Token
 from rest_framework.exceptions import AuthenticationFailed
 from django.urls import reverse
+from .models import Profile
 from rest_framework.permissions import IsAdminUser
+from datetime import datetime
 
 
 class UserRegistrationApiView(APIView):
@@ -28,6 +30,7 @@ class UserRegistrationApiView(APIView):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
+            User.Profile.objects.create(user=User)
             token = default_token_generator.make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             confirm_link = f"https://elisiyan.onrender.com/users/active/{uid}/{token}"
@@ -131,4 +134,45 @@ class AdminDeleteUser(APIView):
             return Response({"message": "User deleted successfully."}, status=200)
         except User.DoesNotExist:
             return Response({"error": "User not found."}, status=404)
+        
+        
+
+
     
+    
+class PurchaseView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        item = request.data.get("item")
+        amount = request.data.get("amount")
+
+        if not item or not amount:
+            return Response({"error": "Item and amount are required."}, status=400)
+        profile = request.user.profile
+        history = f"Purchased {item} for {amount} on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+        if profile.buy_history:
+            profile.buy_history += f"\n{history}"
+        else:
+            profile.buy_history = history
+        profile.save()
+
+        return Response({"message": "Purchase recorded successfully."}, status=201)
+
+
+
+class UserProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            profile = request.user.profile  
+        except Profile.DoesNotExist: 
+            return Response({"error": "Profile does not exist for this user."}, status=404)
+        data = {
+            "username": request.user.username,
+            "email": request.user.email,
+            "buy_history": profile.buy_history,
+            "created_at": profile.created_at,
+        }
+        return Response(data)

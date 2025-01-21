@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .import models
 from django.contrib.auth.models import User
+from .models import Profile
+
 class UserSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(many=False)
     class Meta:
@@ -61,3 +63,10 @@ class AdminSerializer(serializers.ModelSerializer):
             is_active=validated_data.get('is_active', True),
         )
         return user
+    
+    
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ['user', 'buy_history', 'created_at']
+        depth = 1  

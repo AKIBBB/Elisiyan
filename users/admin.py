@@ -12,3 +12,4 @@ class UserAdmin(admin.ModelAdmin):
         return obj.user.last_name
     
 admin.site.register(models.Users,UserAdmin)
+admin.site.register(models.Profile)
