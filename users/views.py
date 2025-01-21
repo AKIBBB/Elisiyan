@@ -102,8 +102,12 @@ class AdminInterfaceView(APIView):
     def get(self, request, *args, **kwargs):
         if request.user.is_staff:
             return Response({"message": "Welcome to the admin interface."})
+        elif request.user.is_superuser:
+            return Response({"message": "Welcome to the superuser interface."})
         else:
-            return Response({"error": "Forbidden"}, status=200)
+            return Response({"error": "Forbidden"}, status=403)
+        
+
     
 class AdminManageUsers(APIView):
     permission_classes = [IsAdminUser]
