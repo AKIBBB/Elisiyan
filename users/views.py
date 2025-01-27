@@ -30,7 +30,7 @@ class UserRegistrationApiView(APIView):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            User.Profile.objects.create(user=User)
+            Profile.objects.create(user=user)
             token = default_token_generator.make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             confirm_link = f"https://elisiyan.onrender.com/users/active/{uid}/{token}"
