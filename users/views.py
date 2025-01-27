@@ -109,6 +109,34 @@ class AdminInterfaceView(APIView):
         
 
     
+# class AdminManageUsers(APIView):
+#     permission_classes = [IsAdminUser]
+
+#     def get(self, request):
+#         users = User.objects.all()
+#         serializer = serializers.AdminSerializer(users, many=True)
+#         return Response(serializer.data)
+
+#     def post(self, request):
+
+#         serializer = serializers.AdminSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=201)
+#         return Response(serializer.errors, status=400)
+
+# class AdminDeleteUser(APIView):
+#     permission_classes = [IsAdminUser]
+
+#     def delete(self, request, user_id):
+#         try:
+#             user = User.objects.get(id=user_id)
+#             user.delete()
+#             return Response({"message": "User deleted successfully."}, status=200)
+#         except User.DoesNotExist:
+#             return Response({"error": "User not found."}, status=404)
+        
+        
 class AdminManageUsers(APIView):
     permission_classes = [IsAdminUser]
 
@@ -118,27 +146,25 @@ class AdminManageUsers(APIView):
         return Response(serializer.data)
 
     def post(self, request):
-
         serializer = serializers.AdminSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=201)
+            return Response({"message": "User created successfully!", "data": serializer.data}, status=201)
         return Response(serializer.errors, status=400)
 
-class AdminDeleteUser(APIView):
-    permission_classes = [IsAdminUser]
+    def delete(self, request):
+        user_id = request.query_params.get("id")
+        if not user_id:
+            return Response({"error": "User ID is required to delete a user."}, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, user_id):
         try:
             user = User.objects.get(id=user_id)
             user.delete()
-            return Response({"message": "User deleted successfully."}, status=200)
+            return Response({"message": f"User '{user.username}' deleted successfully!"}, status=status.HTTP_200_OK)
         except User.DoesNotExist:
-            return Response({"error": "User not found."}, status=404)
-        
-        
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
-
+    
     
     
 class PurchaseView(APIView):

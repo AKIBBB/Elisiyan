@@ -12,7 +12,7 @@ urlpatterns = [
     path('logout/', views.UserLogoutView.as_view(), name='logout'),
     path('admin-interface/', views.AdminInterfaceView.as_view(), name='admin_interface'),
     path('admin/manage-users/', views.AdminManageUsers.as_view(), name='admin_manage_users'),
-    path('admin/delete-user/<int:user_id>/', views.AdminDeleteUser.as_view(), name='admin_delete_user'),
+    # path('admin/delete-user/<int:user_id>/', views.AdminDeleteUser.as_view(), name='admin_delete_user'),
     path('profile/', views.UserProfileView.as_view(), name='profile'),
 
 ]
