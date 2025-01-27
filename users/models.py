@@ -16,3 +16,6 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
+    
+    def get_buy_history_count(self):
+        return len(self.buy_history.split(','))
