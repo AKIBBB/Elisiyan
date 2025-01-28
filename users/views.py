@@ -70,20 +70,16 @@ class UserLoginApiView(APIView):
             user = authenticate(username=username, password=password)
             
             if user:
+                if not user.is_active:
+                    return Response({"error": "Account is inactive. Please confirm your email."}, status=403)
                 token, _ = Token.objects.get_or_create(user=user)
                 login(request, user)
-                try:
-                    profile = user.profile
-                except Profile.DoesNotExist:
-                    return Response({"error": "Profile does not exist for this user."}, status=404)
-
                 if not (user.is_staff or user.is_superuser):
                     return redirect('profile')
                 return redirect('admin_interface')
-            
             else:
-                return Response({'error': "Invalid Credentials"}, status=200)
-        return Response(serializer.errors, status=200)
+                return Response({'error': "Invalid Credentials"}, status=403)
+        return Response(serializer.errors, status=400)
 
     
     
