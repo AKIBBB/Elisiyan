@@ -205,3 +205,5 @@ class UserProfileView(APIView):
             "created_at": profile.created_at,
         }
         return Response(data)
+    
+    
