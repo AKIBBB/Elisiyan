@@ -66,20 +66,21 @@ class UserLoginApiView(APIView):
         if serializer.is_valid():
             username = serializer.validated_data['username']
             password = serializer.validated_data['password']
-            
+
             user = authenticate(username=username, password=password)
-            
+
             if user:
                 if not user.is_active:
                     return Response({"error": "Account is inactive. Please confirm your email."}, status=403)
                 token, _ = Token.objects.get_or_create(user=user)
                 login(request, user)
-                if not (user.is_staff or user.is_superuser):
-                    return redirect('profile')
-                return redirect('admin_interface')
+
+                return Response({"token": token.key}, status=status.HTTP_200_OK)
+
             else:
-                return Response({'error': "Invalid Credentials"}, status=403)
-        return Response(serializer.errors, status=400)
+                return Response({'error': "Invalid Credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+
 
     
     
@@ -102,12 +103,10 @@ class AdminInterfaceView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        if request.user.is_staff:
+        if request.user.is_staff or request.user.is_superuser:  
             return Response({"message": "Welcome to the admin interface."})
-        elif request.user.is_superuser:
-            return Response({"message": "Welcome to the superuser interface."})
         else:
-            return Response({"error": "Forbidden"}, status=403)
+            return Response({"error": "Forbidden"}, status=status.HTTP_403_FORBIDDEN) 
         
 
     
@@ -195,9 +194,10 @@ class UserProfileView(APIView):
 
     def get(self, request):
         try:
-            profile = request.user.profile  
-        except Profile.DoesNotExist: 
-            return Response({"error": "Profile does not exist for this user."}, status=404)
+            profile = request.user.profile
+        except Profile.DoesNotExist:
+            return Response({"error": "Profile does not exist for this user."}, status=status.HTTP_404_NOT_FOUND) 
+
         data = {
             "username": request.user.username,
             "email": request.user.email,
