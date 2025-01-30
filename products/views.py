@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework import generics, serializers, status, viewsets
 from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django.db.models import Avg
@@ -12,6 +13,7 @@ from django_filters import rest_framework as filters
 from rest_framework.permissions import IsAuthenticated
 from .models import ClothingItem, Review, Category, Wishlist
 from .serializers import ClothingItemSerializer
+
 
 
 from .serializers import (
@@ -35,10 +37,14 @@ class ClothingItemFilter(django_filters.FilterSet):
 
 
 # Clothing Item ViewSet
-class ClothingItemViewSet(ReadOnlyModelViewSet):
+
+
+
+class ClothingItemViewSet(ModelViewSet):  
     queryset = ClothingItem.objects.all()
     serializer_class = ClothingItemSerializer
     filterset_class = ClothingItemFilter
+    permission_classes = [IsAdminUser]  
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -57,8 +63,7 @@ class ClothingItemViewSet(ReadOnlyModelViewSet):
 
         category = params.get("category")
         if category:
-            queryset = queryset.filter(category__name__iexact=category)  
-
+            queryset = queryset.filter(category__name__iexact=category)
 
         sort_by = params.get("sort_by", "price")
         if sort_by == "price":
@@ -73,7 +78,7 @@ class ClothingItemViewSet(ReadOnlyModelViewSet):
         if not queryset.exists():
             return Response({"message": "No products available"}, status=status.HTTP_404_NOT_FOUND)
 
-        #average rating
+        # Calculate average rating
         for clothing_item in queryset:
             avg_rating = clothing_item.reviews.aggregate(Avg("rating"))["rating__avg"]
             clothing_item.average_rating = avg_rating if avg_rating else 0
@@ -97,7 +102,6 @@ class ClothingItemViewSet(ReadOnlyModelViewSet):
         data["average_rating"] = clothing_item.average_rating
 
         return Response(data)
-
 
 
 # Category ViewSet
