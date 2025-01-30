@@ -40,15 +40,30 @@ class ClothingItemFilter(django_filters.FilterSet):
 
 
 
-class ClothingItemViewSet(ModelViewSet):  
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.permissions import IsAdminUser, AllowAny
+from rest_framework.response import Response
+from rest_framework import status
+from django.shortcuts import get_object_or_404
+from django.db.models import Avg
+from .models import ClothingItem
+from .serializers import ClothingItemSerializer
+
+
+class ClothingItemViewSet(ModelViewSet):
     queryset = ClothingItem.objects.all()
     serializer_class = ClothingItemSerializer
     filterset_class = ClothingItemFilter
-    permission_classes = [IsAdminUser]  
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']: 
+            return [AllowAny()]
+        return [IsAdminUser()]  
 
     def get_queryset(self):
         queryset = super().get_queryset()
         params = self.request.query_params
+
         name = params.get("name")
         if name:
             queryset = queryset.filter(name__icontains=name)
@@ -78,7 +93,6 @@ class ClothingItemViewSet(ModelViewSet):
         if not queryset.exists():
             return Response({"message": "No products available"}, status=status.HTTP_404_NOT_FOUND)
 
-        # Calculate average rating
         for clothing_item in queryset:
             avg_rating = clothing_item.reviews.aggregate(Avg("rating"))["rating__avg"]
             clothing_item.average_rating = avg_rating if avg_rating else 0
